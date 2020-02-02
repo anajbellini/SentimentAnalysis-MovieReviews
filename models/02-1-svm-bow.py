@@ -1,5 +1,5 @@
 """
-ALGORITMO: Support Vector Machine
+ALGORITMO: Naive Bayes
 REPRESENTACAO DE TEXTO: Bag-of-Words
 """
 
@@ -9,17 +9,24 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics.classification import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
 from sklearn.model_selection import KFold
-from sklearn.svm import SVC
+from sklearn.naive_bayes import MultinomialNB
 
 from models.text_processing import TextProcessing
 
 # inicio do algoritmo
 print(str(datetime.datetime.now()))
 
-# importacao do dataset
+# importacao do dataset do IMDb
 file_train = pd.read_csv('datasets/imdb-train.csv').drop("PhraseId", axis=1)
 file_test = pd.read_csv('datasets/imdb-test-labelled.csv').drop("PhraseId", axis=1)
 dataset = file_train.append(file_test, ignore_index=True)
+
+# importacao do dataset do Rotten Tomatoes
+# dataset = pd.read_csv('datasets/rotten-tomatoes.tsv', sep='\t', encoding='ISO-8859–1')
+# dataset = dataset.drop(['id', 'rating', 'critic', 'top_critic', 'publisher', 'date'], axis=1)
+# dataset.dropna(inplace=True)
+# dataset = dataset.reset_index(drop=True)
+# dataset['fresh'] = dataset['fresh'].replace({'rotten': 0, 'fresh': 1})
 
 # esse codigo sera executado 10x, entao usarei essa variavel como seed
 iteracao = 0
@@ -42,9 +49,6 @@ print('Gerando o Bag-of-Words...')
 bag_of_words = processor.generate_bagofwords(corpus)
 classes = dataset.iloc[:, -1].values
 
-# desconsiderando palavras no BoW que aparecem 1x
-bag_of_words = bag_of_words[:, bag_of_words.sum(axis=0) > 1]
-
 # k-Fold cross validation
 k_fold = KFold(n_splits=10, random_state=iteracao, shuffle=True)
 aux_accuracy = 0
@@ -63,7 +67,7 @@ for train_index, test_index in k_fold.split(bag_of_words):
     # treino do modelo
     print(str(datetime.datetime.now()))
     print(f'Treinando o Modelo {i}...')
-    classifier = SVC(kernel='linear', gamma=0.1, random_state=iteracao).fit(x_train, y_train)
+    classifier = MultinomialNB().fit(x_train, y_train)
     print(f'Treino do Modelo {i} finalizado.')
 
     # classificando o conjunto de teste
@@ -89,4 +93,5 @@ print(f'Examples x Attributes = {bag_of_words.shape}')
 # soma das matrizes de confusao (sao 10)
 print(f'Confusion Matrix = \n{np.array(list(conf_matrices))}')
 
+# fim do algoritmo
 print(str(datetime.datetime.now()))

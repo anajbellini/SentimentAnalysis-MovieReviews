@@ -16,13 +16,15 @@ nltk.download('wordnet')
 class TextProcessing:
     """
     Métodos para realizar o processamento de um texto.
-    Existem 4 tipos de processamento diferentes (4 pipelines, por assim dizer):
+
+    Existem 4 pipelines diferentes:
     1. caixa baixa -> pontuações -> stop words -> stemming (Porter) -> Bag of Words (TF)
     2. caixa baixa -> pontuações -> stop words -> stemming (Porter) -> TF-IDF
     3. caixa baixa -> pontuações -> stop words -> POS Tagging -> lematizacao -> Bag of Words (TF)
     4. caixa baixa -> pontuações -> stop words -> POS Tagging -> lematizacao -> TF-IDF
-    Para cada técnica, há um método. Dependendo do tipo de processamento escolhido, os respectivos métodos
-    serão chamados.
+
+    NOTA: pretendo reorganizar isso tudo com a classe sklearn.pipeline.Pipeline algum dia. Descobri/estudei sobre ela
+    somente depois que meu trabalho já estava finalizado.
     """
 
     def __init__(self, reduction):
