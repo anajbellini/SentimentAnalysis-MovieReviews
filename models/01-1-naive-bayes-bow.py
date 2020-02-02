@@ -3,8 +3,6 @@ ALGORITMO: Naive Bayes
 REPRESENTACAO DE TEXTO: Bag-of-Words
 """
 
-import datetime
-
 import numpy as np
 import pandas as pd
 from sklearn.metrics.classification import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
@@ -13,20 +11,24 @@ from sklearn.naive_bayes import MultinomialNB
 
 from models.text_processing import TextProcessing
 
-# inicio do algoritmo
-print(str(datetime.datetime.now()))
-
 # importacao do dataset do IMDb
-file_train = pd.read_csv('datasets/imdb-train.csv').drop("PhraseId", axis=1)
-file_test = pd.read_csv('datasets/imdb-test-labelled.csv').drop("PhraseId", axis=1)
-dataset = file_train.append(file_test, ignore_index=True)
+# file_train = pd.read_csv(
+#     'C:\\Users\\anaju\\PycharmProjects\\SentimentAnalysis-MovieReviews\\datasets\\imdb-train.csv'
+# ).drop("PhraseId", axis=1)
+# file_test = pd.read_csv(
+#     'C:\\Users\\anaju\\PycharmProjects\\SentimentAnalysis-MovieReviews\\datasets\\imdb-test-labelled.csv'
+# ).drop("PhraseId", axis=1)
+# dataset = file_train.append(file_test, ignore_index=True)
 
 # importacao do dataset do Rotten Tomatoes
-# dataset = pd.read_csv('datasets/rotten-tomatoes.tsv', sep='\t', encoding='ISO-8859–1')
-# dataset = dataset.drop(['id', 'rating', 'critic', 'top_critic', 'publisher', 'date'], axis=1)
-# dataset.dropna(inplace=True)
-# dataset = dataset.reset_index(drop=True)
-# dataset['fresh'] = dataset['fresh'].replace({'rotten': 0, 'fresh': 1})
+dataset = pd.read_csv(
+    'C:\\Users\\anaju\\PycharmProjects\\SentimentAnalysis-MovieReviews\\datasets\\rotten-tomatoes.tsv',
+    sep='\t', encoding='ISO-8859–1'
+)
+dataset = dataset.drop(['id', 'rating', 'critic', 'top_critic', 'publisher', 'date'], axis=1)
+dataset.dropna(inplace=True)
+dataset = dataset.reset_index(drop=True)
+dataset['fresh'] = dataset['fresh'].replace({'rotten': 0, 'fresh': 1})
 
 # esse codigo sera executado 10x, entao usarei essa variavel como seed
 iteracao = 0
@@ -41,7 +43,8 @@ processor = TextProcessing(reduction='S')
 
 print('Processando os textos...')
 for sentence in range(len(dataset)):
-    processed_sentence = processor.process_text(dataset['Phrase'][sentence])
+    # processed_sentence = processor.process_text(dataset['Phrase'][sentence])   # IMDb
+    processed_sentence = processor.process_text(dataset['review'][sentence])  # Rotten Tomatoes
     corpus.append(processed_sentence)
 
 # representacao em vetores e obtencao das classes
@@ -65,10 +68,8 @@ for train_index, test_index in k_fold.split(bag_of_words):
     y_train, y_test = classes[train_index], classes[test_index]
 
     # treino do modelo
-    print(str(datetime.datetime.now()))
-    print(f'Treinando o Modelo {i}...')
+    print(f'Gerando o Modelo {i}...')
     classifier = MultinomialNB().fit(x_train, y_train)
-    print(f'Treino do Modelo {i} finalizado.')
 
     # classificando o conjunto de teste
     y_pred = classifier.predict(x_test)
@@ -80,18 +81,14 @@ for train_index, test_index in k_fold.split(bag_of_words):
     aux_recall += recall_score(y_test, y_pred)
     conf_matrices += np.asarray(confusion_matrix(y_test, y_pred))
 
+    print(f'Modelo {i} finalizado e avaliado.')
     i += 1
 
 # resultados
-print(f'ITERATION #{iteracao} -----------------------')
+print(f'\nITERATION #{iteracao} -----------------------')
 print(f'Accuracy = {aux_accuracy / k_fold.n_splits}')
 print(f'F1 Score = {aux_f1_score / k_fold.n_splits}')
 print(f'Precision = {aux_precision / k_fold.n_splits}')
 print(f'Recall = {aux_recall / k_fold.n_splits}')
 print(f'Examples x Attributes = {bag_of_words.shape}')
-
-# soma das matrizes de confusao (sao 10)
 print(f'Confusion Matrix = \n{np.array(list(conf_matrices))}')
-
-# fim do algoritmo
-print(str(datetime.datetime.now()))

@@ -5,7 +5,7 @@ from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 from nltk.tag import pos_tag
 from nltk.tokenize import word_tokenize
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, TfidfTransformer
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -23,7 +23,7 @@ class TextProcessing:
     3. caixa baixa -> pontuações -> stop words -> POS Tagging -> lematizacao -> Bag of Words (TF)
     4. caixa baixa -> pontuações -> stop words -> POS Tagging -> lematizacao -> TF-IDF
 
-    NOTA: pretendo reorganizar isso tudo com a classe sklearn.pipeline.Pipeline algum dia. Descobri/estudei sobre ela
+    NOTA: pretendo reorganizar isso tudo com a classe sklearn.pipeline.Pipeline no futuro. Descobri/estudei sobre ela
     somente depois que meu trabalho já estava finalizado.
     """
 
@@ -121,4 +121,13 @@ class TextProcessing:
         """
         vectorizer_tf_idf = TfidfVectorizer()
         tf_idf = vectorizer_tf_idf.fit_transform(processed_dataset).toarray()
+        return tf_idf
+
+    @staticmethod
+    def transform_tfidf(bag_of_words):
+        """
+        Método para converter Bag-of-Words em TF-IDF, após reduzir o número de atributos.
+        """
+        transformer_tf_idf = TfidfTransformer()
+        tf_idf = transformer_tf_idf.fit_transform(bag_of_words).toarray()
         return tf_idf
